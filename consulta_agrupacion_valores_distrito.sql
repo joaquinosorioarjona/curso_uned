@@ -1,12 +1,13 @@
-DROP TABLE IF EXISTS sum_distritos_15_agosto;
+DROP TABLE IF EXISTS sum_distritos_15_enero;
 
-CREATE TABLE sum_distritos_15_agosto AS
+CREATE TABLE sum_distritos_15_enero AS
     SELECT 
         destino, 
-        renta, 
-		provincia_destino,
+        hora, 
+	municipio_destino,
+	gau_destino,
         SUM(viajes) AS total_poblacion
     FROM 
-        viajes_distritos_15_agosto
+        viajes_distritos_15_enero
     GROUP BY 
-        destino, renta, provincia_destino;
+        destino, hora, municipio_destino, gau_destino;
