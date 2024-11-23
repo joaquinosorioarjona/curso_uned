@@ -15,11 +15,13 @@ WITH max_poblacion_por_distrito AS (
     SELECT 
         destino, 
         sexo, 
+	provincia_destino,
         total_poblacion
     FROM (
         SELECT 
             destino, 
             sexo, 
+	    provincia_destino,
             total_poblacion,
             ROW_NUMBER() OVER (PARTITION BY destino ORDER BY total_poblacion DESC) AS rn
         FROM 
