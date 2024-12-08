@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="edad.js"></script>
+<script src="renta.js"></script>
+<script src="sexo.js"></script>
+<script src="actividad.js"></script>
+<script src="distancia.js"></script>
+<style>
+    #map {
+        height: 100vh;
+        position: relative;
+    }
+
+    .title {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: Arial, sans-serif;
+        font-size: 18px;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .credit {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        font-style: italic;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .legend {
+        background: white;
+        padding: 10px;
+        border: 1px solid black;
+        line-height: 1.5;
+    }
+
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
+</style>
+</head>
+<body>
+<div id="map">
+    <div class="title">Datos demográficos del 15 de enero de 2023 a partir de datos de telefonía móvil.</div>
+    <div class="credit">Mapa realizado por Joaquín Osorio para el curso de la UNED de uso de Big Data geolocalizado para la creación de material docente.</div>
+</div>
+<script>
+    // Mapa base OpenStreetMap
+    var OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+    });
+
+    // Mapa centrado en España
+    var map = L.map('map', {
+        center: [39.9568, -3.7038],
+        zoom: 7,
+        layers: [OSM]
+    });
+
+    // Colores para Edad
+    function getEdadColor(d) {
+        return d === "0-25" ? 'darkblue' :
+            d === "25-45" ? 'lightgreen' :
+            d === "45-65" ? 'orange' :
+            d === "65-100" ? 'darkred' :
+            'gray'; // Color por defecto
+    }
+
+    // Colores para Renta
+    function getRentaColor(d) {
+        return d === "<10" ? 'darkred' :
+            d === "10-15" ? 'lightgreen' :
+            d === ">15" ? 'darkblue' :
+            'gray';
+    }
+
+    // Colores para las nuevas capas
+    function getSexoColor(d) {
+        return d === "hombre" ? 'orange' :
+            d === "mujer" ? 'lightgreen' :
+            'gray';
+    }
+
+    function getActividadColor(d) {
+        return d === "casa" ? 'purple' :
+            d === "trabajo_estudio" ? 'darkgreen' :
+            d === "frecuente" ? 'lightblue' :
+            d === "no_frecuente" ? 'pink' :
+            'gray';
+    }
+
+    function getDistanciaColor(d) {
+        return d === "0.5-2" ? 'darkblue' :
+            d === "2-10" ? 'lightgreen' :
+            d === "10-50" ? 'orange' :
+            d === ">50" ? 'darkred' :
+            'gray';
+    }
+
+    // Estilos y popups para cada capa
+    function edadStyle(feature) {
+        return { fillColor: getEdadColor(feature.properties.edad), weight: 1, color: 'black', fillOpacity: 0.7 };
+    }
+    function rentaStyle(feature) {
+        return { fillColor: getRentaColor(feature.properties.renta), weight: 1, color: 'black', fillOpacity: 0.7 };
+    }
+    function sexoStyle(feature) {
+        return { fillColor: getSexoColor(feature.properties.sexo), weight: 1, color: 'black', fillOpacity: 0.7 };
+    }
+    function actividadStyle(feature) {
+        return { fillColor: getActividadColor(feature.properties.actividad_destino), weight: 1, color: 'black', fillOpacity: 0.7 };
+    }
+    function distanciaStyle(feature) {
+        return { fillColor: getDistanciaColor(feature.properties.distancia), weight: 1, color: 'black', fillOpacity: 0.7 };
+    }
+
+    function onEachEdadFeature(feature, layer) {
+        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Edad: ' + feature.properties.edad);
+    }
+    function onEachRentaFeature(feature, layer) {
+        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Nivel de renta: ' + feature.properties.renta);
+    }
+    function onEachSexoFeature(feature, layer) {
+        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Sexo: ' + feature.properties.sexo);
+    }
+    function onEachActividadFeature(feature, layer) {
+        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Actividad principal: ' + feature.properties.actividad_destino);
+    }
+    function onEachDistanciaFeature(feature, layer) {
+        layer.bindPopup('<b>' + feature.properties.origen + '</b><br>Distancia: ' + feature.properties.distancia);
+    }
+
+    // Capas GeoJSON
+    var edadLayer = L.geoJson(edad, { style: edadStyle, onEachFeature: onEachEdadFeature });
+    var rentaLayer = L.geoJson(renta, { style: rentaStyle, onEachFeature: onEachRentaFeature });
+    var sexoLayer = L.geoJson(sexo, { style: sexoStyle, onEachFeature: onEachSexoFeature });
+    var actividadLayer = L.geoJson(actividad, { style: actividadStyle, onEachFeature: onEachActividadFeature });
+    var distanciaLayer = L.geoJson(distancia, { style: distanciaStyle, onEachFeature: onEachDistanciaFeature });
+
+    // Control de capas
+    var overlayMaps = {
+        "Edad": edadLayer,
+        "Renta": rentaLayer,
+        "Sexo": sexoLayer,
+        "Actividad": actividadLayer,
+        "Distancia": distanciaLayer
+    };
+
+    var layerControl = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+
+    // Escala
+    L.control.scale().addTo(map);
+	
+	    // Leyenda
+    var legend = L.control({ position: 'bottomright' });
+
+    legend.onAdd = function () {
+        var div = L.DomUtil.create('div', 'legend');
+        return div;
+    };
+
+    legend.addTo(map);
+
+    function updateLegend(activeLayers) {
+        var div = document.querySelector('.legend');
+        div.innerHTML = '';
+
+        if (activeLayers.includes("Edad")) {
+            div.innerHTML += '<b>Rangos de Edad</b><br>';
+            div.innerHTML += '<i style="background: darkblue"></i> 0-25<br>';
+            div.innerHTML += '<i style="background: lightgreen"></i> 25-45<br>';
+            div.innerHTML += '<i style="background: orange"></i> 45-65<br>';
+            div.innerHTML += '<i style="background: darkred"></i> 65-100<br>';
+        }
+
+        if (activeLayers.includes("Renta")) {
+            div.innerHTML += '<b>Nivel de Renta</b><br>';
+            div.innerHTML += '<i style="background: darkred"></i> <10<br>';
+            div.innerHTML += '<i style="background: lightgreen"></i> 10-15<br>';
+            div.innerHTML += '<i style="background: darkblue"></i> >15<br>';
+        }
+
+        if (activeLayers.includes("Sexo")) {
+            div.innerHTML += '<b>Sexo</b><br>';
+            div.innerHTML += '<i style="background: orange"></i> Hombre<br>';
+            div.innerHTML += '<i style="background: lightgreen"></i> Mujer<br>';
+        }
+
+        if (activeLayers.includes("Actividad")) {
+            div.innerHTML += '<b>Actividad Principal</b><br>';
+            div.innerHTML += '<i style="background: purple"></i> Casa<br>';
+            div.innerHTML += '<i style="background: darkgreen"></i> Trabajo/Estudio<br>';
+            div.innerHTML += '<i style="background: lightblue"></i> Frecuente<br>';
+            div.innerHTML += '<i style="background: pink"></i> No Frecuente<br>';
+        }
+
+        if (activeLayers.includes("Distancia")) {
+            div.innerHTML += '<b>Distancia</b><br>';
+            div.innerHTML += '<i style="background: darkblue"></i> 0.5-2<br>';
+            div.innerHTML += '<i style="background: lightgreen"></i> 2-10<br>';
+            div.innerHTML += '<i style="background: orange"></i> 10-50<br>';
+            div.innerHTML += '<i style="background: darkred"></i> >50<br>';
+        }
+    }
+
+    let activeLayers = [];
+
+    // Actualizar leyenda cuando se activa una capa
+    map.on('overlayadd', function (eventLayer) {
+        activeLayers.push(eventLayer.name);
+        updateLegend(activeLayers);
+    });
+
+    // Actualizar leyenda cuando se desactiva una capa
+    map.on('overlayremove', function (eventLayer) {
+        activeLayers = activeLayers.filter(layer => layer !== eventLayer.name);
+        updateLegend(activeLayers);
+    });
+	
+	// Inicializar la leyenda
+    updateLegend(activeLayers);
+</script>
+</body>
+</html>
