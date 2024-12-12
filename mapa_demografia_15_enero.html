@@ -137,22 +137,22 @@
         return { fillColor: getDistanciaColor(feature.properties.distancia), weight: 1, color: 'black', fillOpacity: 0.7 };
     }
 
-    function onEachEdadFeature(feature, layer) {
-        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Edad: ' + feature.properties.edad);
-    }
-    function onEachRentaFeature(feature, layer) {
-        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Nivel de renta: ' + feature.properties.renta);
-    }
-    function onEachSexoFeature(feature, layer) {
-        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Sexo: ' + feature.properties.sexo);
-    }
-    function onEachActividadFeature(feature, layer) {
-        layer.bindPopup('<b>' + feature.properties.destino + '</b><br>Actividad principal: ' + feature.properties.actividad_destino);
-    }
-    function onEachDistanciaFeature(feature, layer) {
-        layer.bindPopup('<b>' + feature.properties.origen + '</b><br>Distancia: ' + feature.properties.distancia);
-    }
-
+   function onEachEdadFeature(feature, layer) {
+       layer.bindPopup('<b>' + feature.properties.distrito_destino + '</b><br>Edad: ' + feature.properties.edad);
+   }
+   function onEachRentaFeature(feature, layer) {
+       layer.bindPopup('<b>' + feature.properties.distrito_destino + '</b><br>Nivel de renta: ' + feature.properties.renta);
+   }
+   function onEachSexoFeature(feature, layer) {
+       layer.bindPopup('<b>' + feature.properties.distrito_destino + '</b><br>Sexo: ' + feature.properties.sexo);
+   }
+   function onEachActividadFeature(feature, layer) {
+       layer.bindPopup('<b>' + feature.properties.distrito_destino + '</b><br>Actividad principal: ' + feature.properties.actividad_destino);
+   }
+   function onEachDistanciaFeature(feature, layer) {
+       layer.bindPopup('<b>' + feature.properties.distrito_origen + '</b><br>Distancia: ' + feature.properties.distancia);
+   }
+	
     // Capas GeoJSON
     var edadLayer = L.geoJson(edad, { style: edadStyle, onEachFeature: onEachEdadFeature });
     var rentaLayer = L.geoJson(renta, { style: rentaStyle, onEachFeature: onEachRentaFeature });
